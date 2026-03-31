@@ -15,13 +15,24 @@ enum Role {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  username  String   @unique
-  email     String   @unique
-  password  String
-  role      Role     @default(MANAGER)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id         String     @id @default(cuid())
+  username   String     @unique
+  email      String     @unique
+  password   String
+  role       Role       @default(MANAGER)
+  is_active  Boolean    @default(true)
+  categories Category[]
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+}
+
+model Category {
+  id         String   @id @default(cuid())
+  name       String   @unique
+  created_by String
+  creator    User     @relation(fields: [created_by], references: [id])
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }
 
 model Activity {

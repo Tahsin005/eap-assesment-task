@@ -46,6 +46,10 @@ export const login = async ({ email, password }) => {
     };
   }
 
+  if (!user.is_active) {
+    throw { status: 403, message: "Account is deactivated. Please contact support." };
+  }
+
   const passwordMatch = await bcrypt.compare(password, user.password);
   if (!passwordMatch) {
     throw { 
@@ -62,3 +66,12 @@ export const login = async ({ email, password }) => {
   const { password: _, ...userWithoutPassword } = user;
   return { user: userWithoutPassword, token };
 };
+
+export const getProfile = async (userId) => {
+  const user = await findUserById(userId);
+  if (!user) {
+    throw { status: 404, message: "User not found." };
+  }
+  return user;
+};
+

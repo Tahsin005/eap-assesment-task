@@ -42,3 +42,24 @@ export const loginHandler = async (req, res) => {
   }
 };
 
+export const meHandler = async (req, res) => {
+  try {
+    const user = await authService.getProfile(req.user.id);
+    return sendSuccess(res, "Profile fetched successfully.", user);
+  } catch (err) {
+    return sendError(res, err.message || "Internal server error.", err.status || 500);
+  }
+};
+
+export const logoutHandler = async (req, res) => {
+  try {
+    // Log activity
+    logActivity(`User ${req.user.email} logged out.`);
+
+    return sendSuccess(res, "Logged out successfully.");
+  } catch (err) {
+    return sendError(res, "Logout failed.", 500);
+  }
+};
+
+

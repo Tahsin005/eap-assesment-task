@@ -1,10 +1,7 @@
 import jwt from "jsonwebtoken";
 import { sendError } from "../utils/response.js";
 
-/**
- * Middleware to protect routes.
- * Expects: Authorization: Bearer <token>
- */
+// Authorization: Bearer <token>
 export const authenticate = (req, res, next) => {
   const authHeader = req.headers.authorization;
 
@@ -23,10 +20,7 @@ export const authenticate = (req, res, next) => {
   }
 };
 
-/**
- * Middleware factory to restrict by role(s).
- * Usage: authorise("ADMIN") or authorise("ADMIN", "MANAGER")
- */
+// authorise("ADMIN") or authorise("ADMIN", "MANAGER")
 export const authorise = (...roles) => {
   return (req, res, next) => {
     if (!req.user || !roles.includes(req.user.role)) {

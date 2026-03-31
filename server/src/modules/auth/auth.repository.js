@@ -14,9 +14,19 @@ export const findUserByUsername = async (username) => {
 
 export const findUserById = async (id) => {
   return prisma.user.findUnique({
-    where: { id }
+    where: { id },
+    select: {
+      id: true,
+      username: true,
+      email: true,
+      role: true,
+      is_active: true,
+      createdAt: true,
+      updatedAt: true
+    }
   });
 };
+
 
 export const createUser = async ({ username, email, password, role }) => {
   return prisma.user.create({
@@ -31,7 +41,9 @@ export const createUser = async ({ username, email, password, role }) => {
       username: true, 
       email: true, 
       role: true, 
+      is_active: true,
       createdAt: true 
     },
   });
 };
+
