@@ -1,5 +1,6 @@
 import * as authService from "./auth.service.js";
 import { sendSuccess, sendError } from "../../utils/response.js";
+import { logActivity } from "../../utils/activity.js";
 
 export const signupHandler = async (req, res) => {
   try {
@@ -11,7 +12,11 @@ export const signupHandler = async (req, res) => {
 
     const user = await authService.signup({ username, email, password, role });
 
+    // Log the action
+    logActivity(`User ${user.username} with role ${user.role} just signed up.`);
+
     return sendSuccess(res, "Account created successfully.", user, 201);
+
   } catch (err) {
     return sendError(res, err.message || "Internal server error.", err.status || 500);
   }
@@ -27,7 +32,11 @@ export const loginHandler = async (req, res) => {
 
     const result = await authService.login({ email, password });
 
+    // Log the action
+    logActivity(`User ${result.user.username} logged in.`);
+
     return sendSuccess(res, "Logged in successfully.", result, 200);
+
   } catch (err) {
     return sendError(res, err.message || "Internal server error.", err.status || 500);
   }

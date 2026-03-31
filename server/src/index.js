@@ -2,6 +2,7 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import authRoutes from "./modules/auth/auth.routes.js";
+import activityRoutes from "./modules/activity/activity.routes.js";
 import { sendSuccess } from "./utils/response.js";
 
 const app = express();
@@ -15,6 +16,8 @@ const API_SUFFIX = "/api/v1"
 
 // routes
 app.use(`${API_SUFFIX}/auth`, authRoutes);
+app.use(`${API_SUFFIX}/activities`, activityRoutes);
+
 
 // health check
 app.get("/", (req, res) => {
