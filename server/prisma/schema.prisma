@@ -15,24 +15,124 @@ enum Role {
 }
 
 model User {
-  id         String     @id @default(cuid())
-  username   String     @unique
-  email      String     @unique
-  password   String
-  role       Role       @default(MANAGER)
-  is_active  Boolean    @default(true)
-  categories Category[]
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @updatedAt
+  id              String          @id @default(cuid())
+  username        String          @unique
+  email           String          @unique
+  password        String
+  role            Role            @default(MANAGER)
+  is_active       Boolean         @default(true)
+  categories      Category[]
+  products        Product[]
+  orders          Order[]
+  stock_movements StockMovement[]
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
 }
 
 model Category {
-  id         String   @id @default(cuid())
-  name       String   @unique
+  id         String    @id @default(cuid())
+  name       String    @unique
   created_by String
-  creator    User     @relation(fields: [created_by], references: [id])
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  creator    User      @relation(fields: [created_by], references: [id])
+  products   Product[]
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+}
+
+enum ProductStatus {
+  active
+  out_of_stock
+  inactive
+}
+
+model Product {
+  id                      String          @id @default(cuid())
+  name                    String
+  category_id             String
+  category                Category        @relation(fields: [category_id], references: [id])
+  price                   Float
+  stock_quantity          Int
+  minimum_stock_threshold Int
+  status                  ProductStatus   @default(active)
+  created_by              String
+  creator                 User            @relation(fields: [created_by], references: [id])
+  restock_record          RestockQueue?
+  order_items             OrderItem[]
+  stock_movements         StockMovement[]
+  createdAt               DateTime        @default(now())
+  updatedAt               DateTime        @updatedAt
+}
+
+enum RestockPriority {
+  high
+  medium
+  low
+}
+
+model RestockQueue {
+  id         String          @id @default(cuid())
+  product_id String          @unique
+  product    Product         @relation(fields: [product_id], references: [id])
+  priority   RestockPriority @default(medium)
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @updatedAt
+}
+
+enum OrderStatus {
+  pending
+  confirmed
+  shipped
+  delivered
+  cancelled
+}
+
+model Order {
+  id              String          @id @default(cuid())
+  customer_name   String
+  total_price     Float
+  status          OrderStatus     @default(pending)
+  created_by      String
+  creator         User            @relation(fields: [created_by], references: [id])
+  items           OrderItem[]
+  stock_movements StockMovement[]
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+}
+
+model OrderItem {
+  id             String  @id @default(cuid())
+  order_id       String
+  order          Order   @relation(fields: [order_id], references: [id])
+  product_id     String
+  product        Product @relation(fields: [product_id], references: [id])
+  quantity       Int
+  unit_price     Float
+  subtotal_price Float
+
+  @@unique([order_id, product_id])
+}
+
+enum MovementType {
+  ORDER_DEDUCT
+  RESTOCK_ADD
+  CANCEL_RETURN
+  MANUAL_ADJUST
+}
+
+model StockMovement {
+  id              String       @id @default(cuid())
+  product_id      String
+  product         Product      @relation(fields: [product_id], references: [id])
+  user_id         String
+  user            User         @relation(fields: [user_id], references: [id])
+  order_id        String?
+  order           Order?       @relation(fields: [order_id], references: [id])
+  movement_type   MovementType
+  quantity_change Int
+  previous_stock  Int
+  new_stock       Int
+  note            String?
+  createdAt       DateTime     @default(now())
 }
 
 model Activity {
