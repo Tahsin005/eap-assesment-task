@@ -7,7 +7,9 @@ import categoryRoutes from "./modules/category/category.routes.js";
 import productRoutes from "./modules/product/product.routes.js";
 import restockRoutes from "./modules/restock/restock.routes.js";
 import stockRoutes from "./modules/stock/stock.routes.js";
+import orderRoutes from "./modules/order/order.routes.js";
 import activityRoutes from "./modules/activity/activity.routes.js";
+
 
 
 import { sendSuccess } from "./utils/response.js";
@@ -28,7 +30,9 @@ app.use(`${API_SUFFIX}/categories`, categoryRoutes);
 app.use(`${API_SUFFIX}/products`, productRoutes);
 app.use(`${API_SUFFIX}/restock-queue`, restockRoutes);
 app.use(`${API_SUFFIX}/stock-movements`, stockRoutes);
+app.use(`${API_SUFFIX}/orders`, orderRoutes);
 app.use(`${API_SUFFIX}/activities`, activityRoutes);
+
 
 
 

@@ -89,7 +89,7 @@ enum OrderStatus {
 model Order {
   id              String          @id @default(cuid())
   customer_name   String
-  total_price     Float
+  total_price     Float           @default(0)
   status          OrderStatus     @default(pending)
   created_by      String
   creator         User            @relation(fields: [created_by], references: [id])
@@ -102,7 +102,7 @@ model Order {
 model OrderItem {
   id             String  @id @default(cuid())
   order_id       String
-  order          Order   @relation(fields: [order_id], references: [id])
+  order          Order   @relation(fields: [order_id], references: [id], onDelete: Cascade)
   product_id     String
   product        Product @relation(fields: [product_id], references: [id])
   quantity       Int
@@ -126,7 +126,7 @@ model StockMovement {
   user_id         String
   user            User         @relation(fields: [user_id], references: [id])
   order_id        String?
-  order           Order?       @relation(fields: [order_id], references: [id])
+  order           Order?       @relation(fields: [order_id], references: [id], onDelete: SetNull)
   movement_type   MovementType
   quantity_change Int
   previous_stock  Int
