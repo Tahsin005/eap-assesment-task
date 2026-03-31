@@ -1,7 +1,9 @@
 import prisma from "../../lib/prisma.js";
 
-export const getAllUsers = async () => {
+export const getAllUsers = async (skip = 0, take = 10) => {
   return prisma.user.findMany({
+    skip,
+    take,
     select: {
       id: true,
       username: true,
@@ -13,6 +15,10 @@ export const getAllUsers = async () => {
     },
     orderBy: { createdAt: "desc" },
   });
+};
+
+export const countUsers = async () => {
+  return prisma.user.count();
 };
 
 export const getUserById = async (id) => {

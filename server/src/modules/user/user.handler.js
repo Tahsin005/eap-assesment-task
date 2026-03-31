@@ -4,8 +4,11 @@ import { logActivity } from "../../utils/activity.js";
 
 export const getAllUsersHandler = async (req, res) => {
   try {
-    const users = await userService.listUsers();
-    return sendSuccess(res, "Users fetched successfully.", users);
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+
+    const result = await userService.listUsers(page, limit);
+    return sendSuccess(res, "Users fetched successfully.", result.users, 200, result.meta);
   } catch (err) {
     return sendError(res, err.message || "Internal server error.", err.status || 500);
   }

@@ -3,6 +3,7 @@ import express from "express";
 import cors from "cors";
 import authRoutes from "./modules/auth/auth.routes.js";
 import userRoutes from "./modules/user/user.routes.js";
+import categoryRoutes from "./modules/category/category.routes.js";
 import activityRoutes from "./modules/activity/activity.routes.js";
 import { sendSuccess } from "./utils/response.js";
 
@@ -18,9 +19,8 @@ const API_SUFFIX = "/api/v1"
 // routes
 app.use(`${API_SUFFIX}/auth`, authRoutes);
 app.use(`${API_SUFFIX}/users`, userRoutes);
+app.use(`${API_SUFFIX}/categories`, categoryRoutes);
 app.use(`${API_SUFFIX}/activities`, activityRoutes);
-
-
 
 // health check
 app.get("/", (req, res) => {

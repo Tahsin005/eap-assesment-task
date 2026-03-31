@@ -4,9 +4,24 @@ import { findUserByEmail, findUserByUsername } from "../auth/auth.repository.js"
 
 const SALT_ROUNDS = 10;
 
-export const listUsers = async () => {
-  return await userRepo.getAllUsers();
+export const listUsers = async (page = 1, limit = 10) => {
+  const skip = (page - 1) * limit;
+  const [users, total] = await Promise.all([
+    userRepo.getAllUsers(skip, limit),
+    userRepo.countUsers(),
+  ]);
+
+  return {
+    users,
+    meta: {
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    },
+  };
 };
+
 
 export const getUser = async (id) => {
   const user = await userRepo.getUserById(id);
