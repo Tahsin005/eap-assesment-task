@@ -23,26 +23,10 @@ export const restockApi = createApi({
       }),
       providesTags: ["RestockQueue"],
     }),
-    updateRestockPriority: builder.mutation({
-      query: ({ id, priority }) => ({
-        url: `/${id}/priority`,
-        method: "PATCH",
-        body: { priority },
-      }),
-      invalidatesTags: ["RestockQueue"],
-    }),
     removeFromRestockQueue: builder.mutation({
       query: (id) => ({
         url: `/${id}`,
         method: "DELETE",
-      }),
-      invalidatesTags: ["RestockQueue"],
-    }),
-    addToRestockQueue: builder.mutation({
-      query: (body) => ({
-        url: "/",
-        method: "POST",
-        body,
       }),
       invalidatesTags: ["RestockQueue"],
     }),
@@ -51,7 +35,5 @@ export const restockApi = createApi({
 
 export const {
   useGetRestockQueueQuery,
-  useUpdateRestockPriorityMutation,
   useRemoveFromRestockQueueMutation,
-  useAddToRestockQueueMutation,
 } = restockApi;

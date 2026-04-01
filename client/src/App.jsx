@@ -16,6 +16,7 @@ import ProductDetailsPage from "./pages/ProductDetailsPage"
 import RestockPage from "./pages/RestockPage"
 import OrdersPage from "./pages/OrdersPage"
 import CreateOrderPage from "./pages/CreateOrderPage"
+import OrderDetailsPage from "./pages/OrderDetailsPage"
 
 const Dashboard = () => (
   <div className="space-y-4">
@@ -84,6 +85,7 @@ const App = () => {
           <Route path="/restock" element={<RestockPage />} />
           <Route path="/orders" element={<OrdersPage />} />
           <Route path="/orders/new" element={<CreateOrderPage />} />
+          <Route path="/orders/:id" element={<OrderDetailsPage />} />
         </Route>
       </Route>
 

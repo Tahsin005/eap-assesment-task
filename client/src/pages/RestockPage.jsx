@@ -3,31 +3,16 @@ import {
   ClipboardList,
   Loader2,
   AlertTriangle,
-  ArrowUpCircle,
-  MoreHorizontal,
   Trash2,
   Package,
-  Plus,
   RefreshCw
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { selectIsAdmin, selectIsManager } from "@/store/slices/authSlice";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Label } from "@/components/ui/label";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-  SheetClose,
-  SheetFooter
-} from "@/components/ui/sheet";
-import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -46,11 +31,8 @@ import {
 } from "@/components/ui/pagination";
 import {
   useGetRestockQueueQuery,
-  useUpdateRestockPriorityMutation,
-  useRemoveFromRestockQueueMutation,
-  useAddToRestockQueueMutation
+  useRemoveFromRestockQueueMutation
 } from "@/store/api/restockApi";
-import { useGetProductsQuery } from "@/store/api/productApi";
 
 const PriorityBadge = ({ priority }) => {
   switch (priority) {
@@ -84,18 +66,7 @@ export default function RestockPage() {
   const isManager = useSelector(selectIsManager);
   
   const { data, isLoading, isFetching, error } = useGetRestockQueueQuery({ page, limit });
-  const { data: productData } = useGetProductsQuery({ page: 1, limit: 300 });
-  const [updatePriority, { isLoading: isUpdating }] = useUpdateRestockPriorityMutation();
   const [removeFromQueue, { isLoading: isRemoving }] = useRemoveFromRestockQueueMutation();
-  const [addToQueue, { isLoading: isAdding }] = useAddToRestockQueueMutation();
-
-  const [isOpen, setIsOpen] = useState(false);
-  const [formData, setFormData] = useState({
-    product_id: "",
-    priority: "medium"
-  });
-
-  const productsForSelection = productData?.data || [];
 
   const handlePageChange = (newPage) => {
     if (newPage >= 1 && newPage <= (data?.meta?.totalPages || 1)) {
@@ -103,35 +74,13 @@ export default function RestockPage() {
     }
   };
 
-  const handleAddSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      await addToQueue(formData).unwrap();
-      setIsOpen(false);
-      setFormData({ product_id: "", priority: "medium" });
-    } catch (err) {
-      console.error("Failed to add to queue:", err);
-    }
-  };
-
-  const handlePriorityChange = async (id, currentPriority) => {
-    const priorities = ["low", "medium", "high"];
-    const currentIndex = priorities.indexOf(currentPriority);
-    const nextPriority = priorities[(currentIndex + 1) % priorities.length];
-    
-    try {
-      await updatePriority({ id, priority: nextPriority }).unwrap();
-    } catch (err) {
-      console.error("Failed to update priority:", err);
-    }
-  };
-
   const handleRemove = async (id, name) => {
-    if (window.confirm(`Remove "${name}" from the restock queue?`)) {
+    if (window.confirm(`Mark "${name}" as restocked and remove from queue?`)) {
       try {
         await removeFromQueue(id).unwrap();
       } catch (err) {
         console.error("Failed to remove item:", err);
+        alert(err?.data?.message || "Failed to remove item from queue.");
       }
     }
   };
@@ -166,76 +115,14 @@ export default function RestockPage() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Restock Queue</h1>
-          <p className="text-muted-foreground mt-1">
-            Manage products that need inventory replenishment. {meta.total} items pending.
+          <h1 className="text-3xl font-bold tracking-tight text-slate-900 uppercase font-black">Restock Queue</h1>
+          <p className="text-muted-foreground mt-1 font-medium italic">
+            Manage products that need inventory replenishment. <span className="text-slate-900 font-bold">{meta.total}</span> items pending.
           </p>
         </div>
-        {(isAdmin || isManager) && (
-          <Sheet open={isOpen} onOpenChange={setIsOpen}>
-            <SheetTrigger asChild>
-              <Button className="gap-2 shadow-sm">
-                <Plus className="h-4 w-4" />
-                Add to Queue
-              </Button>
-            </SheetTrigger>
-            <SheetContent className="sm:max-w-md">
-              <SheetHeader className="px-6 pt-6">
-                <SheetTitle>Manual Entry</SheetTitle>
-                <SheetDescription>
-                  Manually add a product to the restock queue and set its priority.
-                </SheetDescription>
-              </SheetHeader>
-              <form onSubmit={handleAddSubmit} className="space-y-6 py-8 px-6">
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="product_id">Product</Label>
-                    <select
-                      id="product_id"
-                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                      value={formData.product_id}
-                      onChange={(e) => setFormData({ ...formData, product_id: e.target.value })}
-                      required
-                    >
-                      <option value="" disabled>Select Product</option>
-                      {productsForSelection.map(p => (
-                        <option key={p.id} value={p.id}>{p.name} ({p.stock_quantity} units left)</option>
-                      ))}
-                    </select>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <Label htmlFor="priority">Initial Priority</Label>
-                    <select
-                      id="priority"
-                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                      value={formData.priority}
-                      onChange={(e) => setFormData({ ...formData, priority: e.target.value })}
-                      required
-                    >
-                      <option value="low">LOW</option>
-                      <option value="medium">MEDIUM</option>
-                      <option value="high">HIGH</option>
-                    </select>
-                  </div>
-                </div>
-
-                <SheetFooter className="pt-4">
-                  <SheetClose asChild>
-                    <Button type="button" variant="outline">Cancel</Button>
-                  </SheetClose>
-                  <Button type="submit" disabled={isAdding} className="gap-2">
-                    {isAdding && <Loader2 className="h-4 w-4 animate-spin" />}
-                    Add Item
-                  </Button>
-                </SheetFooter>
-              </form>
-            </SheetContent>
-          </Sheet>
-        )}
       </div>
 
-      <Card className="shadow-sm">
+      <Card className="shadow-sm border-none bg-white ring-1 ring-slate-200">
         <div className="px-2">
           {queue.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-16 text-center">
@@ -249,68 +136,63 @@ export default function RestockPage() {
             <>
               <Table>
                 <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-[35%]">Product</TableHead>
+                  <TableRow className="bg-slate-50/50">
+                    <TableHead className="w-[35%] py-4 pl-6">Product</TableHead>
                     <TableHead>Stock Status</TableHead>
                     <TableHead>Priority</TableHead>
                     <TableHead>Added Date</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
+                    <TableHead className="text-right pr-6">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {queue.map((item) => (
-                    <TableRow key={item.id}>
-                      <TableCell className="font-medium">
+                    <TableRow key={item.id} className="hover:bg-slate-50/50 transition-colors">
+                      <TableCell className="font-medium pl-6">
                         <div className="flex flex-col">
-                          <span className="font-semibold">{item.product.name}</span>
-                          <span className="text-[10px] text-muted-foreground uppercase tracking-wider">{item.product.id}</span>
+                          <span className="font-bold text-slate-800">{item.product.name}</span>
+                          <span className="text-[10px] text-muted-foreground uppercase tracking-widest font-mono">{item.product.id}</span>
                         </div>
                       </TableCell>
                       <TableCell>
-                        <div className="flex flex-col gap-1">
+                        <div className="flex flex-col gap-1.5">
                           <div className="flex items-center gap-2">
-                            <span className="text-sm font-bold text-rose-600">{item.product.stock_quantity} units</span>
-                            <span className="text-xs text-muted-foreground">/ {item.product.minimum_stock_threshold} min</span>
+                            <span className="text-sm font-black text-rose-600">{item.product.stock_quantity} units</span>
+                            <span className="text-[10px] text-slate-400 font-bold uppercase">/ {item.product.minimum_stock_threshold} min</span>
                           </div>
-                          <div className="w-24 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                          <div className="w-24 h-1.5 bg-slate-100 rounded-full overflow-hidden ring-1 ring-slate-200/50">
                             <div 
-                              className="h-full bg-rose-500" 
-                              style={{ width: `${Math.min((item.product.stock_quantity / item.product.minimum_stock_threshold) * 100, 100)}%` }}
+                              className={`h-full ${item.priority === 'high' ? 'bg-rose-500' : 'bg-amber-500'}`}
+                              style={{ width: `${Math.min((item.product.stock_quantity / (item.product.minimum_stock_threshold || 1)) * 100, 100)}%` }}
                              />
                           </div>
                         </div>
                       </TableCell>
                       <TableCell>
-                        <button 
-                          onClick={() => handlePriorityChange(item.id, item.priority)}
-                          disabled={isUpdating}
-                          className="hover:opacity-80 transition-opacity"
-                        >
-                          <PriorityBadge priority={item.priority} />
-                        </button>
+                        <PriorityBadge priority={item.priority} />
                       </TableCell>
                       <TableCell>
-                        <span className="text-sm text-muted-foreground">
+                        <span className="text-sm text-muted-foreground font-medium">
                           {new Date(item.createdAt).toLocaleDateString()}
                         </span>
                       </TableCell>
-                      <TableCell className="text-right">
+                      <TableCell className="text-right pr-6">
                         <div className="flex justify-end gap-2">
-                          <Button variant="ghost" size="sm" asChild title="Manage Product">
+                          <Button variant="ghost" size="sm" asChild title="Manage Product" className="hover:bg-slate-100">
                             <Link to={`/products/${item.product.id}`}>
-                              <Package className="h-4 w-4" />
+                              <Package className="h-4 w-4 text-slate-600" />
                             </Link>
                           </Button>
                           {(isAdmin || isManager) && (
                             <Button 
                               variant="ghost" 
                               size="sm" 
-                              className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                              className="text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50"
                               onClick={() => handleRemove(item.id, item.product.name)}
                               disabled={isRemoving}
-                              title="Remove from Queue"
+                              title="Restock & Remove"
                             >
-                              <Trash2 className="h-4 w-4" />
+                              <RefreshCw className={`h-4 w-4 mr-1 ${isRemoving ? 'animate-spin' : ''}`} />
+                              Restock
                             </Button>
                           )}
                         </div>
@@ -321,7 +203,7 @@ export default function RestockPage() {
               </Table>
 
               {meta.totalPages > 1 && (
-                <div className="py-4 border-t px-6 bg-muted/10">
+                <div className="py-4 border-t px-6 bg-slate-50/30">
                   <Pagination>
                     <PaginationContent>
                       <PaginationItem>
@@ -330,7 +212,7 @@ export default function RestockPage() {
                             e.preventDefault();
                             handlePageChange(page - 1);
                           }}
-                          className={page === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                          className={page === 1 ? "pointer-events-none opacity-40" : "cursor-pointer"}
                         />
                       </PaginationItem>
 
@@ -355,7 +237,7 @@ export default function RestockPage() {
                             e.preventDefault();
                             handlePageChange(page + 1);
                           }}
-                          className={page === meta.totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                          className={page === meta.totalPages ? "pointer-events-none opacity-40" : "cursor-pointer"}
                         />
                       </PaginationItem>
                     </PaginationContent>

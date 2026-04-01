@@ -137,9 +137,12 @@ export const cancelOrderAndReturnStock = async (orderId, userId) => {
         const product = item.product;
         const newStock = product.stock_quantity + item.quantity;
 
-        await tx.product.update({
+        const updatedProduct = await tx.product.update({
           where: { id: product.id },
-          data: { stock_quantity: newStock }
+          data: { 
+            stock_quantity: newStock,
+            status: "active" // ensure it's active if stock is returned
+          }
         });
 
         await tx.stockMovement.create({
@@ -154,9 +157,15 @@ export const cancelOrderAndReturnStock = async (orderId, userId) => {
             note: `Order ${orderId} cancelled.`
           }
         });
+
+        // Sync Restock Queue (might remove it if stock is now sufficient)
+        await checkAndSyncRestockQueue(updatedProduct, tx);
       }
 
       return order;
+    }, {
+      maxWait: 5000,
+      timeout: 15000
     });
   } catch (error) {
     handlePrismaError(error, "Order cancellation");
@@ -191,7 +200,7 @@ export const deleteOrder = async (id, userId) => {
           const newStock = product.stock_quantity + item.quantity;
 
           // update product stock
-          await tx.product.update({
+          const updatedProduct = await tx.product.update({
             where: { id: product.id },
             data: {
               stock_quantity: newStock,
@@ -212,11 +221,17 @@ export const deleteOrder = async (id, userId) => {
               note: `Stock returned due to deletion of Order ${id}.`
             }
           });
+
+          // Sync Restock Queue
+          await checkAndSyncRestockQueue(updatedProduct, tx);
         }
       }
 
       // now delete the order (Items will cascade delete due to schema change)
       return tx.order.delete({ where: { id } });
+    }, {
+      maxWait: 5000,
+      timeout: 15000
     });
   } catch (error) {
     handlePrismaError(error, "Order deletion");

@@ -122,6 +122,7 @@ export default function ProductDetailsPage() {
 
   const [stockData, setStockData] = useState({
     quantity_change: "",
+    movement_type: "RESTOCK_ADD",
     note: ""
   });
 
@@ -178,12 +179,13 @@ export default function ProductDetailsPage() {
       await adjustStock({
         id,
         quantity_change: finalChange,
-        movement_type: "MANUAL_ADJUST",
+        movement_type: stockData.movement_type,
         note: stockData.note
       }).unwrap();
 
       setStockData({
         quantity_change: "",
+        movement_type: "RESTOCK_ADD",
         note: ""
       });
     } catch (err) {
@@ -454,8 +456,27 @@ export default function ProductDetailsPage() {
             <form onSubmit={handleAdjustStock}>
               <CardContent className="pt-6 space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="movement_type">Movement Type</Label>
-                  <Input id="movement_type" value="MANUAL_ADJUST" disabled className="bg-muted font-mono text-xs" />
+                  <Label>Movement Type</Label>
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      variant={stockData.movement_type === "RESTOCK_ADD" ? "default" : "secondary"}
+                      size="sm"
+                      className={`flex-1 text-[10px] h-8 font-black tracking-tight ${stockData.movement_type === "RESTOCK_ADD" ? "bg-emerald-600 hover:bg-emerald-700" : "bg-slate-100 text-slate-500"}`}
+                      onClick={() => setStockData(prev => ({ ...prev, movement_type: "RESTOCK_ADD" }))}
+                    >
+                      RESTOCK ADD
+                    </Button>
+                    <Button
+                      type="button"
+                      variant={stockData.movement_type === "MANUAL_ADJUST" ? "default" : "secondary"}
+                      size="sm"
+                      className={`flex-1 text-[10px] h-8 font-black tracking-tight ${stockData.movement_type === "MANUAL_ADJUST" ? "bg-indigo-600 hover:bg-indigo-700" : "bg-slate-100 text-slate-500"}`}
+                      onClick={() => setStockData(prev => ({ ...prev, movement_type: "MANUAL_ADJUST" }))}
+                    >
+                      MANUAL ADJUST
+                    </Button>
+                  </div>
                 </div>
 
                 <div className="space-y-2">

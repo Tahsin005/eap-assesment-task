@@ -21,10 +21,15 @@ export const orderApi = createApi({
         url: "/",
         params,
       }),
+      transformResponse: (response) => ({
+        data: response.data,
+        meta: response.meta
+      }),
       providesTags: ["Orders"],
     }),
     getOrderById: builder.query({
       query: (id) => `/${id}`,
+      transformResponse: (response) => response.data,
       providesTags: (result, error, id) => [{ type: "Order", id }],
     }),
     createOrder: builder.mutation({
@@ -57,6 +62,14 @@ export const orderApi = createApi({
       }),
       invalidatesTags: ["Orders"],
     }),
+    getOrderMovements: builder.query({
+      query: ({ id, page = 1, limit = 10 }) => `/${id}/stock-movements?page=${page}&limit=${limit}`,
+      transformResponse: (response) => ({
+        data: response.data,
+        meta: response.meta
+      }),
+      providesTags: (result, error, { id }) => [{ type: "Order", id }, "Orders"],
+    }),
   }),
 });
 
@@ -67,4 +80,5 @@ export const {
   useUpdateOrderStatusMutation,
   useCancelOrderMutation,
   useDeleteOrderMutation,
+  useGetOrderMovementsQuery,
 } = orderApi;
