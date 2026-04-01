@@ -15,7 +15,11 @@ export const getQueue = async (skip = 0, take = 10) => {
         }
       }
     },
-    orderBy: { createdAt: "desc" }
+    orderBy: {
+      product: {
+        stock_quantity: "asc"
+      }
+    }
   });
 };
 

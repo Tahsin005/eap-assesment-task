@@ -1,5 +1,6 @@
 import prisma from "../../lib/prisma.js";
 import { handlePrismaError } from "../../utils/prismaErrors.js";
+import { checkAndSyncRestockQueue } from "../restock/restock.logic.js";
 
 export const getAllProducts = async (skip = 0, take = 10) => {
   return prisma.product.findMany({
@@ -88,12 +89,16 @@ export const updateStockWithMovement = async ({
   note 
 }) => {
   try {
-    return await prisma.$transaction([
-      prisma.product.update({
+    return await prisma.$transaction(async (tx) => {
+      const updatedProduct = await tx.product.update({
         where: { id: productId },
-        data: { stock_quantity: newStock }
-      }),
-      prisma.stockMovement.create({
+        data: { 
+          stock_quantity: newStock,
+          status: newStock === 0 ? "out_of_stock" : undefined
+        }
+      });
+
+      const movement = await tx.stockMovement.create({
         data: {
           product_id: productId,
           user_id: userId,
@@ -103,8 +108,12 @@ export const updateStockWithMovement = async ({
           new_stock: newStock,
           note
         }
-      })
-    ]);
+      });
+
+      await checkAndSyncRestockQueue(updatedProduct, tx);
+
+      return [updatedProduct, movement];
+    });
   } catch (error) {
     handlePrismaError(error, "Stock update");
   }

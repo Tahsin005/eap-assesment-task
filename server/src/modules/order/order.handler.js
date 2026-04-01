@@ -77,33 +77,3 @@ export const cancelOrderHandler = async (req, res) => {
   }
 };
 
-// Items
-export const addItemHandler = async (req, res) => {
-  try {
-    const item = await orderService.addItemToOrder(req.params.id, req.body, req.user.id);
-    logActivity(`${req.user.role} (${req.user.username}) added item to order ${req.params.id}.`);
-    return sendSuccess(res, "Item added to order successfully.", item, 201);
-  } catch (err) {
-    return sendError(res, err.message || "Internal server error.", err.status || 500);
-  }
-};
-
-export const updateItemHandler = async (req, res) => {
-  try {
-    const item = await orderService.updateOrderItem(req.params.id, req.params.itemId, req.body, req.user.id);
-    logActivity(`${req.user.role} (${req.user.username}) updated item ${req.params.itemId} in order ${req.params.id}.`);
-    return sendSuccess(res, "Order item updated successfully.", item);
-  } catch (err) {
-    return sendError(res, err.message || "Internal server error.", err.status || 500);
-  }
-};
-
-export const deleteItemHandler = async (req, res) => {
-  try {
-    await orderService.removeOrderItem(req.params.id, req.params.itemId, req.user.id);
-    logActivity(`${req.user.role} (${req.user.username}) removed item ${req.params.itemId} from order ${req.params.id}.`);
-    return sendSuccess(res, "Order item removed successfully.");
-  } catch (err) {
-    return sendError(res, err.message || "Internal server error.", err.status || 500);
-  }
-};

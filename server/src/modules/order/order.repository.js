@@ -1,5 +1,6 @@
 import prisma from "../../lib/prisma.js";
 import { handlePrismaError } from "../../utils/prismaErrors.js";
+import { checkAndSyncRestockQueue } from "../restock/restock.logic.js";
 
 export const getAllOrders = async (skip = 0, take = 10) => {
   return prisma.order.findMany({
@@ -29,6 +30,7 @@ export const getOrderById = async (id) => {
 
 export const createOrderWithItems = async (orderData, items, userId) => {
   try {
+    // Increase transaction timeout to 15s to prevent P2028 for batch orders
     return await prisma.$transaction(async (tx) => {
       // create the order
       const order = await tx.order.create({
@@ -38,7 +40,6 @@ export const createOrderWithItems = async (orderData, items, userId) => {
           created_by: userId
         }
       });
-
 
       let totalPrice = 0;
 
@@ -52,7 +53,7 @@ export const createOrderWithItems = async (orderData, items, userId) => {
         if (product.stock_quantity < item.quantity) {
           throw { 
             status: 400, 
-            message: `Insufficient stock for product "${product.name}". Available: ${product.stock_quantity}, Requested: ${item.quantity}` 
+            message: `Only ${product.stock_quantity} items available in stock for "${product.name}".` 
           };
         }
 
@@ -72,7 +73,7 @@ export const createOrderWithItems = async (orderData, items, userId) => {
 
         // update product stock
         const newStock = product.stock_quantity - item.quantity;
-        await tx.product.update({
+        const updatedProduct = await tx.product.update({
           where: { id: product.id },
           data: { 
             stock_quantity: newStock,
@@ -93,6 +94,9 @@ export const createOrderWithItems = async (orderData, items, userId) => {
             note: `Order ${order.id} created.`
           }
         });
+
+        // 5. Sync Restock Queue using updated product data
+        await checkAndSyncRestockQueue(updatedProduct, tx);
       }
 
       // 3. Update total price in order
@@ -101,112 +105,15 @@ export const createOrderWithItems = async (orderData, items, userId) => {
         data: { total_price: totalPrice },
         include: { items: true }
       });
+    }, {
+      maxWait: 5000, 
+      timeout: 15000
     });
   } catch (error) {
     handlePrismaError(error, "Order creation");
   }
 };
 
-export const addItem = async (orderId, itemData, userId) => {
-  try {
-    return await prisma.$transaction(async (tx) => {
-      const product = await tx.product.findUnique({ where: { id: itemData.product_id } });
-      if (!product) throw { status: 404, message: "Product not found." };
-      if (product.stock_quantity < itemData.quantity) throw { status: 400, message: "Insufficient stock." };
-
-      const subtotal = product.price * itemData.quantity;
-
-      // Create item
-      const newItem = await tx.orderItem.create({
-        data: {
-          order_id: orderId,
-          product_id: itemData.product_id,
-          quantity: itemData.quantity,
-          unit_price: product.price,
-          subtotal_price: subtotal
-        }
-      });
-
-      // Deduct stock
-      const newStock = product.stock_quantity - itemData.quantity;
-      await tx.product.update({
-        where: { id: product.id },
-        data: { stock_quantity: newStock }
-      });
-
-      // Log movement
-      await tx.stockMovement.create({
-        data: {
-          product_id: product.id,
-          user_id: userId,
-          order_id: orderId,
-          movement_type: "ORDER_DEDUCT",
-          quantity_change: -itemData.quantity,
-          previous_stock: product.stock_quantity,
-          new_stock: newStock,
-          note: `Item added to order ${orderId}.`
-        }
-      });
-
-      // Update order total
-      await tx.order.update({
-        where: { id: orderId },
-        data: { total_price: { increment: subtotal } }
-      });
-
-      return newItem;
-    });
-  } catch (error) {
-    handlePrismaError(error, "Order item");
-  }
-};
-
-export const removeItem = async (orderId, itemId, userId) => {
-  try {
-    return await prisma.$transaction(async (tx) => {
-      const item = await tx.orderItem.findUnique({
-        where: { id: itemId },
-        include: { product: true }
-      });
-
-      if (!item) throw { status: 404, message: "Order item not found." };
-      if (item.order_id !== orderId) throw { status: 403, message: "Item does not belong to this order." };
-
-      // Delete item
-      await tx.orderItem.delete({ where: { id: itemId } });
-
-      // Return stock
-      const product = item.product;
-      const newStock = product.stock_quantity + item.quantity;
-      await tx.product.update({
-        where: { id: product.id },
-        data: { stock_quantity: newStock }
-      });
-
-      // Log movement
-      await tx.stockMovement.create({
-        data: {
-          product_id: product.id,
-          user_id: userId,
-          order_id: orderId,
-          movement_type: "CANCEL_RETURN",
-          quantity_change: item.quantity,
-          previous_stock: product.stock_quantity,
-          new_stock: newStock,
-          note: `Item removed from order ${orderId}.`
-        }
-      });
-
-      // Update order total
-      return tx.order.update({
-        where: { id: orderId },
-        data: { total_price: { decrement: item.subtotal_price } }
-      });
-    });
-  } catch (error) {
-    handlePrismaError(error, "Order item removal");
-  }
-};
 
 export const cancelOrderAndReturnStock = async (orderId, userId) => {
   try {
@@ -327,64 +234,3 @@ export const updateOrder = async (id, data) => {
   }
 };
 
-export const updateItemQuantity = async (orderId, itemId, quantity, userId) => {
-  try {
-    return await prisma.$transaction(async (tx) => {
-      const item = await tx.orderItem.findUnique({
-        where: { id: itemId },
-        include: { product: true }
-      });
-
-      if (!item) throw { status: 404, message: "Item not found." };
-      if (item.order_id !== orderId) throw { status: 403, message: "Unauthorized." };
-
-      const diff = quantity - item.quantity;
-      if (diff === 0) return item;
-
-      const product = item.product;
-      if (diff > 0 && product.stock_quantity < diff) throw { status: 400, message: "Insufficient stock." };
-
-      // Update item
-      const newSubtotal = item.unit_price * quantity;
-      const updatedItem = await tx.orderItem.update({
-        where: { id: itemId },
-        data: {
-          quantity,
-          subtotal_price: newSubtotal
-        }
-      });
-
-      // Update product stock
-      const newStock = product.stock_quantity - diff;
-      await tx.product.update({
-        where: { id: product.id },
-        data: { stock_quantity: newStock }
-      });
-
-      // Log movement
-      await tx.stockMovement.create({
-        data: {
-          product_id: product.id,
-          user_id: userId,
-          order_id: orderId,
-          movement_type: diff > 0 ? "ORDER_DEDUCT" : "CANCEL_RETURN",
-          quantity_change: -diff,
-          previous_stock: product.stock_quantity,
-          new_stock: newStock,
-          note: `Item quantity updated in order ${orderId}.`
-        }
-      });
-
-      // Update order total
-      const priceDiff = (quantity - item.quantity) * item.unit_price;
-      await tx.order.update({
-        where: { id: orderId },
-        data: { total_price: { increment: priceDiff } }
-      });
-
-      return updatedItem;
-    });
-  } catch (error) {
-    handlePrismaError(error, "Order item update");
-  }
-};

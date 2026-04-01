@@ -45,16 +45,3 @@ export const deleteOrder = async (id, userId) => {
   return await orderRepo.deleteOrder(id, userId);
 };
 
-
-// Item level
-export const addItemToOrder = async (orderId, itemData, userId) => {
-  return await orderRepo.addItem(orderId, itemData, userId);
-};
-
-export const updateOrderItem = async (orderId, itemId, { quantity }, userId) => {
-  return await orderRepo.updateItemQuantity(orderId, itemId, quantity, userId);
-};
-
-export const removeOrderItem = async (orderId, itemId, userId) => {
-  return await orderRepo.removeItem(orderId, itemId, userId);
-};

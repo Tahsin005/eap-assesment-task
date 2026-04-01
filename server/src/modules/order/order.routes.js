@@ -7,9 +7,6 @@ import {
   deleteOrderHandler,
   updateStatusHandler,
   cancelOrderHandler,
-  addItemHandler,
-  updateItemHandler,
-  deleteItemHandler,
 } from "./order.handler.js";
 import { getOrderMovementsHandler } from "../stock/stock.handler.js";
 import { authenticate, authorise } from "../../middlewares/auth.middleware.js";
@@ -26,11 +23,6 @@ router.post("/", createOrderHandler);
 router.patch("/:id", updateOrderHandler);
 router.patch("/:id/status", updateStatusHandler);
 router.patch("/:id/cancel", cancelOrderHandler);
-
-// Order Items
-router.post("/:id/items", addItemHandler);
-router.patch("/:id/items/:itemId", updateItemHandler);
-router.delete("/:id/items/:itemId", deleteItemHandler);
 
 // ADMIN only
 router.delete("/:id", authorise("ADMIN"), deleteOrderHandler);

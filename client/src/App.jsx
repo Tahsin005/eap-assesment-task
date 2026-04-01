@@ -14,6 +14,8 @@ import UserDetailsPage from "./pages/UserDetailsPage"
 import ProductsPage from "./pages/ProductsPage"
 import ProductDetailsPage from "./pages/ProductDetailsPage"
 import RestockPage from "./pages/RestockPage"
+import OrdersPage from "./pages/OrdersPage"
+import CreateOrderPage from "./pages/CreateOrderPage"
 
 const Dashboard = () => (
   <div className="space-y-4">
@@ -80,6 +82,8 @@ const App = () => {
           <Route path="/products" element={<ProductsPage />} />
           <Route path="/products/:id" element={<ProductDetailsPage />} />
           <Route path="/restock" element={<RestockPage />} />
+          <Route path="/orders" element={<OrdersPage />} />
+          <Route path="/orders/new" element={<CreateOrderPage />} />
         </Route>
       </Route>
 
