@@ -141,7 +141,7 @@ export default function UsersPage() {
                       <TableCell>{getRoleBadge(user.role)}</TableCell>
                       <TableCell>{getStatusBadge(user.is_active)}</TableCell>
                       <TableCell className="text-right px-6">
-                        <Button asChild variant="outline" size="sm" className="opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Button asChild variant="outline" size="sm" className="group-hover:opacity-100 transition-opacity">
                           <Link to={`/users/${user.id}`}>Manage</Link>
                         </Button>
                       </TableCell>
