@@ -3,6 +3,7 @@ import authReducer from "./slices/authSlice";
 import { authApi } from "./api/authApi";
 import { userApi } from "./api/userApi";
 import { categoryApi } from "./api/categoryApi";
+import { productApi } from "./api/productApi";
 
 export const store = configureStore({
   reducer: {
@@ -10,7 +11,13 @@ export const store = configureStore({
     [authApi.reducerPath]: authApi.reducer,
     [userApi.reducerPath]: userApi.reducer,
     [categoryApi.reducerPath]: categoryApi.reducer,
+    [productApi.reducerPath]: productApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(authApi.middleware, userApi.middleware, categoryApi.middleware),
+    getDefaultMiddleware().concat(
+      authApi.middleware, 
+      userApi.middleware, 
+      categoryApi.middleware,
+      productApi.middleware
+    ),
 });
