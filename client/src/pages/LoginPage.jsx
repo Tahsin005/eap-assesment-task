@@ -26,6 +26,16 @@ export default function LoginPage() {
     }
   };
 
+  const handleDemoLogin = async () => {
+    try {
+      const response = await login({ email: "demo@gmail.com", password: "demo123" }).unwrap();
+      dispatch(setCredentials(response.data));
+      navigate("/dashboard");
+    } catch (err) {
+      alert(err.data?.message || "Demo login failed");
+    }
+  };
+
   return (
     <div className="flex h-screen w-full items-center justify-center px-4 bg-muted/40">
       <Card className="w-full max-w-sm shadow-xl border-t-4 border-t-primary">
@@ -66,6 +76,15 @@ export default function LoginPage() {
           <CardFooter className="flex flex-col gap-4 mt-2">
             <Button className="w-full text-md h-10 font-semibold" type="submit" disabled={isLoading}>
               {isLoading ? "Logging in..." : "Login"}
+            </Button>
+            <Button 
+              type="button" 
+              variant="outline" 
+              className="w-full text-md h-10 font-semibold border-primary/20 hover:bg-primary/5 hover:text-primary" 
+              onClick={handleDemoLogin} 
+              disabled={isLoading}
+            >
+              Demo Login
             </Button>
             <div className="text-center text-sm text-muted-foreground mt-2">
               Don't have an account?{" "}

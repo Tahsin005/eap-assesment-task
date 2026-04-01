@@ -1,4 +1,4 @@
-import { Home, Settings, User, LayoutDashboard, LogOut } from "lucide-react"
+import { Home, Settings, User, LayoutDashboard, LogOut, Users } from "lucide-react"
 import {
   Sidebar,
   SidebarContent,
@@ -12,32 +12,38 @@ import {
 } from "@/components/ui/sidebar"
 import { Link, useLocation, useNavigate } from "react-router-dom"
 import { useSelector, useDispatch } from "react-redux"
-import { selectCurrentUser, logout } from "@/store/slices/authSlice"
-
-// Menu items.
-const items = [
-  {
-    title: "Dashboard",
-    url: "/dashboard",
-    icon: LayoutDashboard,
-  },
-  {
-    title: "Profile",
-    url: "/profile",
-    icon: User,
-  },
-  {
-    title: "Settings",
-    url: "/settings",
-    icon: Settings,
-  },
-]
+import { selectCurrentUser, selectIsAdmin, logout } from "@/store/slices/authSlice"
 
 export function AppSidebar() {
   const location = useLocation()
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const user = useSelector(selectCurrentUser)
+  const isAdmin = useSelector(selectIsAdmin)
+
+  // Menu items.
+  const items = [
+    {
+      title: "Dashboard",
+      url: "/dashboard",
+      icon: LayoutDashboard,
+    },
+    {
+      title: "Profile",
+      url: "/profile",
+      icon: User,
+    },
+    ...(isAdmin ? [{
+      title: "Users",
+      url: "/users",
+      icon: Users,
+    }] : []),
+    {
+      title: "Settings",
+      url: "/settings",
+      icon: Settings,
+    },
+  ]
 
   const handleLogout = () => {
     dispatch(logout())

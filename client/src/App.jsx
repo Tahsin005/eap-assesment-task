@@ -4,7 +4,9 @@ import LoginPage from "./pages/LoginPage"
 import SignupPage from "./pages/SignupPage"
 import HomePage from "./pages/HomePage"
 import ProfilePage from "./pages/ProfilePage"
+import UsersPage from "./pages/UsersPage"
 import ProtectedRoute from "./components/ProtectedRoute"
+import AdminRoute from "./components/AdminRoute"
 import PublicRoute from "./components/PublicRoute"
 
 const Dashboard = () => (
@@ -54,6 +56,13 @@ const App = () => {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/settings" element={<Settings />} />
+        </Route>
+      </Route>
+
+      {/* Admin Only Routes */}
+      <Route element={<AdminRoute />}>
+        <Route element={<Layout />}>
+          <Route path="/users" element={<UsersPage />} />
         </Route>
       </Route>
 
