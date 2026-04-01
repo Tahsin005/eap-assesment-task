@@ -58,10 +58,6 @@ export default function UsersPage() {
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold tracking-tight">Users Management</h1>
-        <Button className="gap-2 shadow-lg shadow-primary/20">
-          <UserPlus className="h-4 w-4" />
-          Add User
-        </Button>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

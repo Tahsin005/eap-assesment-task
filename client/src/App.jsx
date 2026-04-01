@@ -5,8 +5,10 @@ import SignupPage from "./pages/SignupPage"
 import HomePage from "./pages/HomePage"
 import ProfilePage from "./pages/ProfilePage"
 import UsersPage from "./pages/UsersPage"
+import CategoriesPage from "./pages/CategoriesPage"
 import ProtectedRoute from "./components/ProtectedRoute"
 import AdminRoute from "./components/AdminRoute"
+import ManagerRoute from "./components/ManagerRoute"
 import PublicRoute from "./components/PublicRoute"
 import UserDetailsPage from "./pages/UserDetailsPage"
 
@@ -65,6 +67,13 @@ const App = () => {
         <Route element={<Layout />}>
           <Route path="/users" element={<UsersPage />} />
           <Route path="/users/:id" element={<UserDetailsPage />} />
+        </Route>
+      </Route>
+
+      {/* ADMIN + MANAGER Routes */}
+      <Route element={<ManagerRoute />}>
+        <Route element={<Layout />}>
+          <Route path="/categories" element={<CategoriesPage />} />
         </Route>
       </Route>
 

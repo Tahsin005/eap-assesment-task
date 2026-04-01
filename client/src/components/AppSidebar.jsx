@@ -1,4 +1,4 @@
-import { Home, Settings, User, LayoutDashboard, LogOut, Users } from "lucide-react"
+import { Home, Settings, User, LayoutDashboard, LogOut, Users, FolderOpen } from "lucide-react"
 import {
   Sidebar,
   SidebarContent,
@@ -28,16 +28,16 @@ export function AppSidebar() {
       url: "/dashboard",
       icon: LayoutDashboard,
     },
-    {
-      title: "Profile",
-      url: "/profile",
-      icon: User,
-    },
     ...(isAdmin ? [{
       title: "Users",
       url: "/users",
       icon: Users,
     }] : []),
+    {
+      title: "Categories",
+      url: "/categories",
+      icon: FolderOpen,
+    },
     {
       title: "Settings",
       url: "/settings",
