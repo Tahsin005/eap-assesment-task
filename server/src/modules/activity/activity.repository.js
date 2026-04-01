@@ -1,11 +1,13 @@
 import prisma from "../../lib/prisma.js";
 
-/**
- * Fetch the latest N activity logs.
- */
-export const getRecentActivities = async (limit = 10) => {
+export const getRecentActivities = async (skip = 0, take = 10) => {
   return prisma.activity.findMany({
-    take: limit,
+    skip,
+    take,
     orderBy: { createdAt: "desc" },
   });
+};
+
+export const countActivities = async () => {
+  return prisma.activity.count();
 };

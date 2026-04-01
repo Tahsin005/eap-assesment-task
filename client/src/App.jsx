@@ -17,29 +17,8 @@ import RestockPage from "./pages/RestockPage"
 import OrdersPage from "./pages/OrdersPage"
 import CreateOrderPage from "./pages/CreateOrderPage"
 import OrderDetailsPage from "./pages/OrderDetailsPage"
-
-const Dashboard = () => (
-  <div className="space-y-4">
-    <h1 className="text-3xl font-bold">Dashboard</h1>
-    <p className="text-muted-foreground">Welcome to the Smart Inventory & Order Management System.</p>
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-      <div className="rounded-xl border bg-card text-card-foreground shadow p-6">
-        <h3 className="font-semibold leading-none tracking-tight">Total Orders</h3>
-        <p className="text-2xl font-bold mt-2">1,234</p>
-      </div>
-      <div className="rounded-xl border bg-card text-card-foreground shadow p-6">
-        <h3 className="font-semibold leading-none tracking-tight">Active Inventory</h3>
-        <p className="text-2xl font-bold mt-2">456</p>
-      </div>
-      <div className="rounded-xl border bg-card text-card-foreground shadow p-6">
-        <h3 className="font-semibold leading-none tracking-tight">Revenue</h3>
-        <p className="text-2xl font-bold mt-2">$12,345</p>
-      </div>
-    </div>
-  </div>
-)
-
-
+import DashboardPage from "./pages/DashboardPage"
+import ActivitiesPage from "./pages/ActivitiesPage"
 
 const Settings = () => (
   <div className="space-y-4">
@@ -62,7 +41,7 @@ const App = () => {
       {/* protected Routes */}
       <Route element={<ProtectedRoute />}>
         <Route element={<Layout />}>
-          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/settings" element={<Settings />} />
         </Route>
@@ -73,6 +52,7 @@ const App = () => {
         <Route element={<Layout />}>
           <Route path="/users" element={<UsersPage />} />
           <Route path="/users/:id" element={<UserDetailsPage />} />
+          <Route path="/activities" element={<ActivitiesPage />} />
         </Route>
       </Route>
 

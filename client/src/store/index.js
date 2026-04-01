@@ -6,6 +6,8 @@ import { categoryApi } from "./api/categoryApi";
 import { productApi } from "./api/productApi";
 import { restockApi } from "./api/restockApi";
 import { orderApi } from "./api/orderApi";
+import { dashboardApi } from "./api/dashboardApi";
+import { activityApi } from "./api/activityApi";
 
 export const store = configureStore({
   reducer: {
@@ -16,6 +18,8 @@ export const store = configureStore({
     [productApi.reducerPath]: productApi.reducer,
     [restockApi.reducerPath]: restockApi.reducer,
     [orderApi.reducerPath]: orderApi.reducer,
+    [dashboardApi.reducerPath]: dashboardApi.reducer,
+    [activityApi.reducerPath]: activityApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
@@ -24,6 +28,8 @@ export const store = configureStore({
       categoryApi.middleware,
       productApi.middleware,
       restockApi.middleware,
-      orderApi.middleware
+      orderApi.middleware,
+      dashboardApi.middleware,
+      activityApi.middleware
     ),
 });

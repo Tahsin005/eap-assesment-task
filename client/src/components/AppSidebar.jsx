@@ -1,4 +1,4 @@
-import { Home, Settings, User, LayoutDashboard, LogOut, Users, FolderOpen, Package, ClipboardList, ShoppingBag } from "lucide-react"
+import { Home, Settings, User, LayoutDashboard, LogOut, Users, FolderOpen, Package, ClipboardList, ShoppingBag, Activity } from "lucide-react"
 import {
   Sidebar,
   SidebarContent,
@@ -28,11 +28,6 @@ export function AppSidebar() {
       url: "/dashboard",
       icon: LayoutDashboard,
     },
-    ...(isAdmin ? [{
-      title: "Users",
-      url: "/users",
-      icon: Users,
-    }] : []),
     {
       title: "Categories",
       url: "/categories",
@@ -44,20 +39,24 @@ export function AppSidebar() {
       icon: Package,
     },
     {
-      title: "Restock Queue",
-      url: "/restock",
-      icon: ClipboardList,
-    },
-    {
       title: "Orders",
       url: "/orders",
       icon: ShoppingBag,
     },
     {
-      title: "Settings",
-      url: "/settings",
-      icon: Settings,
+      title: "Restock Queue",
+      url: "/restock",
+      icon: ClipboardList,
     },
+    ...(isAdmin ? [{
+      title: "Users",
+      url: "/users",
+      icon: Users,
+    }, {
+      title: "Activity Logs",
+      url: "/activities",
+      icon: Activity,
+    }] : []),
   ]
 
   const handleLogout = () => {
