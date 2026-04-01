@@ -1,4 +1,5 @@
 import prisma from "../../lib/prisma.js";
+import { handlePrismaError } from "../../utils/prismaErrors.js";
 
 export const getAllProducts = async (skip = 0, take = 10) => {
   return prisma.product.findMany({
@@ -36,32 +37,44 @@ export const getProductById = async (id) => {
 
 
 export const createProduct = async (data) => {
-  return prisma.product.create({
-    data,
-    include: {
-      category: {
-        select: { id: true, name: true }
+  try {
+    return await prisma.product.create({
+      data,
+      include: {
+        category: {
+          select: { id: true, name: true }
+        }
       }
-    }
-  });
+    });
+  } catch (error) {
+    handlePrismaError(error, "Product");
+  }
 };
 
 export const updateProduct = async (id, data) => {
-  return prisma.product.update({
-    where: { id },
-    data,
-    include: {
-      category: {
-        select: { id: true, name: true }
+  try {
+    return await prisma.product.update({
+      where: { id },
+      data,
+      include: {
+        category: {
+          select: { id: true, name: true }
+        }
       }
-    }
-  });
+    });
+  } catch (error) {
+    handlePrismaError(error, "Product");
+  }
 };
 
 export const deleteProduct = async (id) => {
-  return prisma.product.delete({
-    where: { id }
-  });
+  try {
+    return await prisma.product.delete({
+      where: { id }
+    });
+  } catch (error) {
+    handlePrismaError(error, "Product");
+  }
 };
 
 // atomic stock update with movement logging.
@@ -74,21 +87,25 @@ export const updateStockWithMovement = async ({
   movementType, 
   note 
 }) => {
-  return prisma.$transaction([
-    prisma.product.update({
-      where: { id: productId },
-      data: { stock_quantity: newStock }
-    }),
-    prisma.stockMovement.create({
-      data: {
-        product_id: productId,
-        user_id: userId,
-        movement_type: movementType,
-        quantity_change: quantityChange,
-        previous_stock: previousStock,
-        new_stock: newStock,
-        note
-      }
-    })
-  ]);
+  try {
+    return await prisma.$transaction([
+      prisma.product.update({
+        where: { id: productId },
+        data: { stock_quantity: newStock }
+      }),
+      prisma.stockMovement.create({
+        data: {
+          product_id: productId,
+          user_id: userId,
+          movement_type: movementType,
+          quantity_change: quantityChange,
+          previous_stock: previousStock,
+          new_stock: newStock,
+          note
+        }
+      })
+    ]);
+  } catch (error) {
+    handlePrismaError(error, "Stock update");
+  }
 };

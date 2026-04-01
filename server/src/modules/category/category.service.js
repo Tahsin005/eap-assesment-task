@@ -18,22 +18,11 @@ export const addCategory = async ({ name, created_by }) => {
 };
 
 export const editCategory = async (id, name) => {
-  const existing = await categoryRepo.findCategoryByName(name);
-  if (existing && existing.id !== id) {
-    throw { status: 409, message: "Another category with this name already exists." };
-  }
-
-  try {
-    return await categoryRepo.updateCategory(id, { name });
-  } catch (error) {
-    throw { status: 404, message: "Category not found." };
-  }
+  // Unique name constraint is handled in the repository via Prisma P2002
+  return await categoryRepo.updateCategory(id, { name });
 };
 
 export const removeCategory = async (id) => {
-  try {
-    return await categoryRepo.deleteCategory(id);
-  } catch (error) {
-    throw { status: 404, message: "Category not found." };
-  }
+  // Relation constraint (P2003) is handled in the repository
+  return await categoryRepo.deleteCategory(id);
 };

@@ -10,22 +10,6 @@ import {
 const SALT_ROUNDS = 10;
 
 export const signup = async ({ username, email, password, role }) => {
-  const existingEmail = await findUserByEmail(email);
-  if (existingEmail) {
-    throw { 
-      status: 409, 
-      message: "Email is already in use." 
-    };
-  }
-
-  const existingUsername = await findUserByUsername(username);
-  if (existingUsername) {
-    throw { 
-      status: 409, 
-      message: "Username is already taken." 
-    };
-  }
-
   const hashedPassword = await bcrypt.hash(password, SALT_ROUNDS);
 
   const user = await createUser({

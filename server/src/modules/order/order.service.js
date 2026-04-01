@@ -26,68 +26,35 @@ export const getOrder = async (id) => {
 
 export const placeOrder = async ({ customer_name, items }, userId) => {
   if (!items || items.length === 0) throw { status: 400, message: "Order must have at least one item." };
-  
-  try {
-    return await orderRepo.createOrderWithItems({ customer_name, status: "pending" }, items, userId);
-  } catch (err) {
-    throw { status: 400, message: err.message };
-  }
+  return await orderRepo.createOrderWithItems({ customer_name, status: "pending" }, items, userId);
 };
 
 export const updateOrderInfo = async (id, data) => {
-  try {
-    return await orderRepo.updateOrder(id, data);
-  } catch (err) {
-    throw { status: 404, message: "Order not found." };
-  }
+  return await orderRepo.updateOrder(id, data);
 };
 
 export const setOrderStatus = async (id, status) => {
-  try {
-    return await orderRepo.updateStatus(id, status);
-  } catch (err) {
-    throw { status: 404, message: "Order not found." };
-  }
+  return await orderRepo.updateStatus(id, status);
 };
 
 export const cancelOrder = async (id, userId) => {
-  try {
-    return await orderRepo.cancelOrderAndReturnStock(id, userId);
-  } catch (err) {
-    throw { status: 400, message: err.message };
-  }
+  return await orderRepo.cancelOrderAndReturnStock(id, userId);
 };
 
 export const deleteOrder = async (id, userId) => {
-  try {
-    return await orderRepo.deleteOrder(id, userId);
-  } catch (err) {
-    throw { status: 404, message: err.message || "Order not found." };
-  }
+  return await orderRepo.deleteOrder(id, userId);
 };
 
 
 // Item level
 export const addItemToOrder = async (orderId, itemData, userId) => {
-  try {
-    return await orderRepo.addItem(orderId, itemData, userId);
-  } catch (err) {
-    throw { status: 400, message: err.message };
-  }
+  return await orderRepo.addItem(orderId, itemData, userId);
 };
 
 export const updateOrderItem = async (orderId, itemId, { quantity }, userId) => {
-  try {
-    return await orderRepo.updateItemQuantity(orderId, itemId, quantity, userId);
-  } catch (err) {
-    throw { status: 400, message: err.message };
-  }
+  return await orderRepo.updateItemQuantity(orderId, itemId, quantity, userId);
 };
 
 export const removeOrderItem = async (orderId, itemId, userId) => {
-  try {
-    return await orderRepo.removeItem(orderId, itemId, userId);
-  } catch (err) {
-    throw { status: 400, message: err.message };
-  }
+  return await orderRepo.removeItem(orderId, itemId, userId);
 };

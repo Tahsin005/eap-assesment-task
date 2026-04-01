@@ -1,4 +1,5 @@
 import prisma from "../../lib/prisma.js";
+import { handlePrismaError } from "../../utils/prismaErrors.js";
 
 export const getQueue = async () => {
   return prisma.restockQueue.findMany({
@@ -33,35 +34,47 @@ export const getQueueItemById = async (id) => {
 };
 
 export const addToQueue = async (data) => {
-  return prisma.restockQueue.create({
-    data,
-    include: {
-      product: {
-        select: { name: true }
+  try {
+    return await prisma.restockQueue.create({
+      data,
+      include: {
+        product: {
+          select: { name: true }
+        }
       }
-    }
-  });
+    });
+  } catch (error) {
+    handlePrismaError(error, "Restock queue item");
+  }
 };
 
 export const updatePriority = async (id, priority) => {
-  return prisma.restockQueue.update({
-    where: { id },
-    data: { priority },
-    include: {
-      product: {
-        select: { name: true }
+  try {
+    return await prisma.restockQueue.update({
+      where: { id },
+      data: { priority },
+      include: {
+        product: {
+          select: { name: true }
+        }
       }
-    }
-  });
+    });
+  } catch (error) {
+    handlePrismaError(error, "Restock queue priority");
+  }
 };
 
 export const removeFromQueue = async (id) => {
-  return prisma.restockQueue.delete({
-    where: { id },
-    include: {
-      product: {
-        select: { name: true }
+  try {
+    return await prisma.restockQueue.delete({
+      where: { id },
+      include: {
+        product: {
+          select: { name: true }
+        }
       }
-    }
-  });
+    });
+  } catch (error) {
+    handlePrismaError(error, "Restock queue item deletion");
+  }
 };

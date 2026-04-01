@@ -34,32 +34,15 @@ export const addProduct = async (data) => {
 };
 
 export const editProduct = async (id, data) => {
-  if (data.category_id) {
-    const category = await getCategoryById(data.category_id);
-    if (!category) throw { status: 400, message: "Invalid category ID." };
-  }
-
-  try {
-    return await productRepo.updateProduct(id, data);
-  } catch (error) {
-    throw { status: 404, message: "Product not found or update failed." };
-  }
+  return await productRepo.updateProduct(id, data);
 };
 
 export const removeProduct = async (id) => {
-  try {
-    return await productRepo.deleteProduct(id);
-  } catch (error) {
-    throw { status: 404, message: "Product not found or deletion failed." };
-  }
+  return await productRepo.deleteProduct(id);
 };
 
 export const updateProductStatus = async (id, status) => {
-  try {
-    return await productRepo.updateProduct(id, { status });
-  } catch (error) {
-    throw { status: 404, message: "Product not found." };
-  }
+  return await productRepo.updateProduct(id, { status });
 };
 
 export const adjustStock = async ({ productId, quantityChange, userId, movementType, note }) => {

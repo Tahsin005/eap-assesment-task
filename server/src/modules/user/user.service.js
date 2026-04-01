@@ -52,19 +52,11 @@ export const updateUserDetails = async (id, data) => {
     data.password = await bcrypt.hash(data.password, SALT_ROUNDS);
   }
   
-  try {
-    return await userRepo.updateUser(id, data);
-  } catch (error) {
-    throw { status: 404, message: "User not found or update failed." };
-  }
+  return await userRepo.updateUser(id, data);
 };
 
 export const removeUser = async (id) => {
-  try {
-    return await userRepo.deleteUser(id);
-  } catch (error) {
-    throw { status: 404, message: "User not found or deletion failed." };
-  }
+  return await userRepo.deleteUser(id);
 };
 
 export const changeUserRole = async (id, role) => {

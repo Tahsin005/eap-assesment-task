@@ -1,4 +1,5 @@
 import prisma from "../../lib/prisma.js";
+import { handlePrismaError } from "../../utils/prismaErrors.js";
 
 export const getAllCategories = async () => {
   return prisma.category.findMany({
@@ -27,30 +28,42 @@ export const findCategoryByName = async (name) => {
 };
 
 export const createCategory = async (data) => {
-  return prisma.category.create({
-    data,
-    include: {
-      creator: {
-        select: { id: true, username: true, role: true }
+  try {
+    return await prisma.category.create({
+      data,
+      include: {
+        creator: {
+          select: { id: true, username: true, role: true }
+        }
       }
-    }
-  });
+    });
+  } catch (error) {
+    handlePrismaError(error, "Category");
+  }
 };
 
 export const updateCategory = async (id, data) => {
-  return prisma.category.update({
-    where: { id },
-    data,
-    include: {
-      creator: {
-        select: { id: true, username: true, role: true }
+  try {
+    return await prisma.category.update({
+      where: { id },
+      data,
+      include: {
+        creator: {
+          select: { id: true, username: true, role: true }
+        }
       }
-    }
-  });
+    });
+  } catch (error) {
+    handlePrismaError(error, "Category");
+  }
 };
 
 export const deleteCategory = async (id) => {
-  return prisma.category.delete({
-    where: { id }
-  });
+  try {
+    return await prisma.category.delete({
+      where: { id }
+    });
+  } catch (error) {
+    handlePrismaError(error, "Category");
+  }
 };
