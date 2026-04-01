@@ -8,6 +8,7 @@ import UsersPage from "./pages/UsersPage"
 import ProtectedRoute from "./components/ProtectedRoute"
 import AdminRoute from "./components/AdminRoute"
 import PublicRoute from "./components/PublicRoute"
+import UserDetailsPage from "./pages/UserDetailsPage"
 
 const Dashboard = () => (
   <div className="space-y-4">
@@ -63,6 +64,7 @@ const App = () => {
       <Route element={<AdminRoute />}>
         <Route element={<Layout />}>
           <Route path="/users" element={<UsersPage />} />
+          <Route path="/users/:id" element={<UserDetailsPage />} />
         </Route>
       </Route>
 
