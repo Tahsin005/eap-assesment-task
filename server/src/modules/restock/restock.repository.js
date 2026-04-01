@@ -1,8 +1,10 @@
 import prisma from "../../lib/prisma.js";
 import { handlePrismaError } from "../../utils/prismaErrors.js";
 
-export const getQueue = async () => {
+export const getQueue = async (skip = 0, take = 10) => {
   return prisma.restockQueue.findMany({
+    skip,
+    take,
     include: {
       product: {
         select: {
@@ -15,6 +17,10 @@ export const getQueue = async () => {
     },
     orderBy: { createdAt: "desc" }
   });
+};
+
+export const countQueue = async () => {
+  return prisma.restockQueue.count();
 };
 
 export const getQueueItemById = async (id) => {

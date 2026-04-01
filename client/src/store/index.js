@@ -4,6 +4,7 @@ import { authApi } from "./api/authApi";
 import { userApi } from "./api/userApi";
 import { categoryApi } from "./api/categoryApi";
 import { productApi } from "./api/productApi";
+import { restockApi } from "./api/restockApi";
 
 export const store = configureStore({
   reducer: {
@@ -12,12 +13,14 @@ export const store = configureStore({
     [userApi.reducerPath]: userApi.reducer,
     [categoryApi.reducerPath]: categoryApi.reducer,
     [productApi.reducerPath]: productApi.reducer,
+    [restockApi.reducerPath]: restockApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
       authApi.middleware, 
       userApi.middleware, 
       categoryApi.middleware,
-      productApi.middleware
+      productApi.middleware,
+      restockApi.middleware
     ),
 });

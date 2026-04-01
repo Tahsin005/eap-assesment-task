@@ -1,4 +1,4 @@
-import { Home, Settings, User, LayoutDashboard, LogOut, Users, FolderOpen, Package } from "lucide-react"
+import { Home, Settings, User, LayoutDashboard, LogOut, Users, FolderOpen, Package, ClipboardList } from "lucide-react"
 import {
   Sidebar,
   SidebarContent,
@@ -42,6 +42,11 @@ export function AppSidebar() {
       title: "Products",
       url: "/products",
       icon: Package,
+    },
+    {
+      title: "Restock Queue",
+      url: "/restock",
+      icon: ClipboardList,
     },
     {
       title: "Settings",

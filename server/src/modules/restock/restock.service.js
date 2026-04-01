@@ -1,8 +1,23 @@
 import * as restockRepo from "./restock.repository.js";
 import { getProductById } from "../product/product.repository.js";
 
-export const listQueue = async () => {
-  return await restockRepo.getQueue();
+export const listQueue = async (page = 1, limit = 10) => {
+  const skip = (page - 1) * limit;
+  
+  const [queue, total] = await Promise.all([
+    restockRepo.getQueue(skip, limit),
+    restockRepo.countQueue()
+  ]);
+
+  return {
+    queue,
+    meta: {
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit)
+    }
+  };
 };
 
 export const getQueueItem = async (id) => {

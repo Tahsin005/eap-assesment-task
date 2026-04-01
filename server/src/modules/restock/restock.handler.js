@@ -4,8 +4,11 @@ import { logActivity } from "../../utils/activity.js";
 
 export const getQueueHandler = async (req, res) => {
   try {
-    const queue = await restockService.listQueue();
-    return sendSuccess(res, "Restock queue fetched successfully.", queue);
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+
+    const result = await restockService.listQueue(page, limit);
+    return sendSuccess(res, "Restock queue fetched successfully.", result.queue, 200, result.meta);
   } catch (err) {
     return sendError(res, err.message || "Internal server error.", err.status || 500);
   }
