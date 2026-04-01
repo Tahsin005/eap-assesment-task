@@ -4,6 +4,7 @@ import {
   findUserByEmail,
   findUserByUsername,
   createUser,
+  findUserById
 } from "./auth.repository.js";
 
 const SALT_ROUNDS = 10;

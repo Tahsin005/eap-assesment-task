@@ -1,7 +1,8 @@
-import { Home, Settings, User, LayoutDashboard } from "lucide-react"
+import { Home, Settings, User, LayoutDashboard, LogOut } from "lucide-react"
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -9,13 +10,15 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
-import { Link, useLocation } from "react-router-dom"
+import { Link, useLocation, useNavigate } from "react-router-dom"
+import { useSelector, useDispatch } from "react-redux"
+import { selectCurrentUser, logout } from "@/store/slices/authSlice"
 
 // Menu items.
 const items = [
   {
     title: "Dashboard",
-    url: "/",
+    url: "/dashboard",
     icon: LayoutDashboard,
   },
   {
@@ -32,6 +35,18 @@ const items = [
 
 export function AppSidebar() {
   const location = useLocation()
+  const navigate = useNavigate()
+  const dispatch = useDispatch()
+  const user = useSelector(selectCurrentUser)
+
+  const handleLogout = () => {
+    dispatch(logout())
+    navigate("/login")
+  }
+
+  const handleProfile = () => {
+    navigate("/profile")
+  }
 
   return (
     <Sidebar collapsible="icon">
@@ -54,6 +69,27 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+      <SidebarFooter>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton onClick={handleProfile} className="w-full justify-start gap-2 py-6 px-4">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground font-bold">
+                {user?.username?.charAt(0).toUpperCase() || "U"}
+              </div>
+              <div className="flex flex-col items-start text-sm leading-tight group-data-[collapsible=icon]:hidden">
+                <span className="font-semibold truncate w-32 text-left">{user?.username || "User"}</span>
+                <span className="text-xs text-muted-foreground truncate w-32 text-left">{user?.email || ""}</span>
+              </div>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton onClick={handleLogout} className="text-destructive hover:text-destructive hover:bg-destructive/10">
+              <LogOut className="h-5 w-5" />
+              <span>Logout</span>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarFooter>
     </Sidebar>
   )
 }

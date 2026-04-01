@@ -1,5 +1,11 @@
-import { Routes, Route } from "react-router-dom"
+import { Routes, Route, Navigate } from "react-router-dom"
 import Layout from "./components/Layout"
+import LoginPage from "./pages/LoginPage"
+import SignupPage from "./pages/SignupPage"
+import HomePage from "./pages/HomePage"
+import ProfilePage from "./pages/ProfilePage"
+import ProtectedRoute from "./components/ProtectedRoute"
+import PublicRoute from "./components/PublicRoute"
 
 const Dashboard = () => (
   <div className="space-y-4">
@@ -22,12 +28,7 @@ const Dashboard = () => (
   </div>
 )
 
-const Profile = () => (
-  <div className="space-y-4">
-    <h1 className="text-3xl font-bold">Profile</h1>
-    <p className="text-muted-foreground">Manage your account information.</p>
-  </div>
-)
+
 
 const Settings = () => (
   <div className="space-y-4">
@@ -39,11 +40,25 @@ const Settings = () => (
 const App = () => {
   return (
     <Routes>
-      <Route path="/" element={<Layout />}>
-        <Route index element={<Dashboard />} />
-        <Route path="profile" element={<Profile />} />
-        <Route path="settings" element={<Settings />} />
+      {/* public Routes */}
+      <Route path="/" element={<HomePage />} />
+      
+      <Route element={<PublicRoute />}>
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignupPage />} />
       </Route>
+
+      {/* protected Routes */}
+      <Route element={<ProtectedRoute />}>
+        <Route element={<Layout />}>
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/settings" element={<Settings />} />
+        </Route>
+      </Route>
+
+      {/* fallback */}
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )
 }
